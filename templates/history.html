@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    History
+{% endblock %}
+
+
+{% block main %}
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">User</th>
+            <th scope="col">FileName</th>
+            <th scope="col">Transcript</th>
+            <th scope="col">Date</th>
+          </tr>
+    </thead>
+    <tbody>
+        {% for history in history %}
+        <tr>
+            <td>{{ history["user_id"] }}</td>
+            <td>{{ history["filename"] }}</td>
+            <td><a href="static/transcripts/{{history['transcript']}}">{{ history["transcript"] }}</a></td>
+            <td>{{ history["date"] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}
