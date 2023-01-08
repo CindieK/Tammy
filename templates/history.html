@@ -9,7 +9,7 @@
 <table class="table">
     <thead>
         <tr>
-            <th scope="col">User</th>
+            <!-- <th scope="col">User</th> -->
             <th scope="col">FileName</th>
             <th scope="col">Transcript</th>
             <th scope="col">Date</th>
@@ -18,9 +18,9 @@
     <tbody>
         {% for history in history %}
         <tr>
-            <td>{{ history["user_id"] }}</td>
+            <!-- <td>{{ history["user_id"] }}</td> -->
             <td>{{ history["filename"] }}</td>
-            <td><a href="static/transcripts/{{history['transcript']}}">{{ history["transcript"] }}</a></td>
+            <td><a href="{{ history['transcript'] }}" download>{{ history["transcript"] }}</a></td>
             <td>{{ history["date"] }}</td>
         </tr>
         {% endfor %}

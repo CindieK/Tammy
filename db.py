@@ -1,12 +1,13 @@
 # Move to DB
 import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import delete, insert
+import logging
 
-# engine = sqlalchemy.create_engine("mysql+pymysql://kyalo:secret@127.0.0.1:3306/tammy")
 engine = sqlalchemy.create_engine("mysql+pymysql://root:secret@127.0.0.1:3306/tammydb")
-# tammy (DDL) [@kachpela]
 Base = declarative_base()
+
+logging.basicConfig()
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 class History(Base):
     __tablename__ = 'history'
@@ -22,7 +23,6 @@ class User(Base):
     email = sqlalchemy.Column(sqlalchemy.String(length=100))
     username = sqlalchemy.Column(sqlalchemy.String(length=100))
     password = sqlalchemy.Column(sqlalchemy.String(length=20))
-    # confirmpassword = sqlalchemy.Column(sqlalchemy.String(length=20))
 
 Base.metadata.create_all(engine)
 

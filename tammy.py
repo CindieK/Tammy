@@ -1,15 +1,17 @@
-import os, time, wave, bcrypt, datetime
+import os, time, bcrypt, datetime
 import azure.cognitiveservices.speech as speechsdk
 from flask_session import Session
+from pathlib import Path
 # from pydub import AudioSegment
 
 from helpers import apology, login_required
-from flask import Flask, session, send_from_directory, current_app, send_file, flash, request, redirect, url_for, render_template
+from flask import Flask, session, flash, request, redirect, render_template
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # tammy db
 from db import History, User, db
+from sqlalchemy import desc
 
 ALLOWED_EXTENSIONS = {'wav', 'mp3'}
 
@@ -36,26 +38,31 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
-
 app.add_url_rule(
     "/uploads/<name>", endpoint="download_file", build_only=True
 )
 
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS    
+    # print ('filename')
+
+# replace the extension of a given file
+def replace_extension(filename, new_extension):
+    # test.wav
+    name, ext = filename.split(".")
+    return name + "." + new_extension
+
 # user_id = session['user_id']
 date = datetime.datetime.now()
+# filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 """Show homepage, fix later"""
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
     # user_id = session["user_id"]
-
     return render_template("index.html")
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Show generated transcript
 @app.route("/transcript", methods=["GET", "POST"])
@@ -69,7 +76,7 @@ def transcript():
         print("FORM DATA RECEIVED")
 
         if "file" not in request.files:
-            # flash('No file part')
+            flash('No file uploaded!')
             return redirect("/")
 
         file = request.files["file"]
@@ -104,7 +111,6 @@ def transcript():
                 print( evt.error_details)
                 # speech_recognizer.stop_continuous_recognition()
 
-
             speech_recognizer.recognized.connect(handle_final_result) 
             speech_recognizer.session_started.connect(lambda evt: print('SESSION STARTED: {}'.format(evt))) 
             speech_recognizer.recognized.connect(lambda evt: print('RECOGNIZED: {}'.format(evt.result.text)))
@@ -123,21 +129,33 @@ def transcript():
             print("Printing all results:")
             print(all_results)
 
-            with open(f'static/transcripts/{filename}.docx','w') as f:
+            newfile = replace_extension(filename, "txt")
+            transcript = f'static/transcripts/{newfile}'
+
+            with open(transcript,'w') as f:
                 f.write('\n'.join(all_results))
+
+
+            try:
+                # session['user_id'] = user.id  
+                history = History(user_id=session['user_id'], filename=filename, transcript=transcript, date=date)
+                db.add(history)
+                db.commit()
+                return redirect('/history')
+            except Exception as err:
+                print(f"Unexpected {err=}, {type(err)=}")
+                return apology("Something went wrong!")
 
         else:
             print("Something went wrong w/ file")
-            
-   
+        
     return render_template("transcript.html", all_results=all_results)
 
 @app.route("/history", methods=["GET"])
 @login_required
 def history():
 
-    # transactions = db.execute('SELECT name, symbol, price, shares, date FROM transactions WHERE user_id=?', user_id)
-    history = db.query(History).all()
+    history = db.query(History).filter_by(user_id = session["user_id"]).order_by(desc(History.date))
     return render_template("history.html", history=history)
 
 @app.route("/register", methods=["GET", "POST"])
@@ -163,10 +181,8 @@ def register():
         # Hash a password for the first time, with a randomly-generated salt
         # hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
         hash = generate_password_hash(password)
-        # print(hash)
 
         try:
-            # db.execute("INSERT INTO users (username, hash) VALUES (?, ?)", username, hash)
             newUser = User(username=username, email=email, password=hash)
             db.add(newUser)
             db.commit()
@@ -199,7 +215,6 @@ def login():
             return apology("must provide password", 403)
 
         # symbols_user database for username
-        # rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
         user = db.query(User).filter_by(username=request.form.get('username')).first()
         # hash = generate_password_hash(password)
 
@@ -212,7 +227,6 @@ def login():
         
         # makes more sense than storing just a bool
         session['user_id'] = user.id  
-        # session["user_id"] = user[0]["id"]
         flash('You were logged in!')
         return redirect('/')
 
