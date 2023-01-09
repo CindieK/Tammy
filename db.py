@@ -1,9 +1,9 @@
 # Move to DB
 import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
-import logging
+import logging, os
 
-engine = sqlalchemy.create_engine("mysql+pymysql://root:secret@127.0.0.1:3306/tammydb")
+engine = sqlalchemy.create_engine(os.environ.get('DB_STRING'))
 Base = declarative_base()
 
 logging.basicConfig()
