@@ -1,7 +1,7 @@
 import os, time, bcrypt, datetime
 import azure.cognitiveservices.speech as speechsdk
 from flask_session import Session
-from pathlib import Path
+# from pathlib import Path
 # from pydub import AudioSegment
 
 from helpers import apology, login_required
@@ -163,14 +163,11 @@ def register():
     """Register user"""
     if (request.method == "POST"):
         username = request.form.get('username')
-        email = request.form.get('email')
         password = request.form.get('password')
         confirmation = request.form.get('confirmation')
 
         if not username:
             return apology("Username is required!")
-        elif not password:
-            return apology("Email is required!")
         elif not password:
             return apology("Password is required!")
         elif not confirmation:
@@ -183,7 +180,7 @@ def register():
         hash = generate_password_hash(password)
 
         try:
-            newUser = User(username=username, email=email, password=hash)
+            newUser = User(username=username, password=hash)
             db.add(newUser)
             db.commit()
             return redirect('/login')
