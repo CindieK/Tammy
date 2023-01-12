@@ -6,8 +6,8 @@ import logging, os
 engine = sqlalchemy.create_engine(os.environ.get('DB_STRING'))
 Base = declarative_base()
 
-logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+# logging.basicConfig()
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 class History(Base):
     __tablename__ = 'history'

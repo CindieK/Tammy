@@ -161,4 +161,4 @@ cython_debug/
 
 upload/*
 static/transcripts/*
-flask_session/
+flask_session/*

@@ -1,15 +1,13 @@
 import os, time, bcrypt, datetime
 import azure.cognitiveservices.speech as speechsdk
 from flask_session import Session
-# from pathlib import Path
-# from pydub import AudioSegment
 
 from helpers import apology, login_required
 from flask import Flask, session, flash, request, redirect, render_template
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash, generate_password_hash
 
-# tammy db
+# tammydb
 from db import History, User, db
 from sqlalchemy import desc
 
@@ -45,17 +43,14 @@ app.add_url_rule(
 def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS    
-    # print ('filename')
 
-# replace the extension of a given file
+""" replace the extension of a given file """
 def replace_extension(filename, new_extension):
-    # test.wav
     name, ext = filename.split(".")
     return name + "." + new_extension
 
 # user_id = session['user_id']
 date = datetime.datetime.now()
-# filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 """Show homepage, fix later"""
 @app.route("/", methods=["GET", "POST"])
@@ -70,7 +65,6 @@ def index():
 def transcript():  
     all_results = "No file selected"
     speech_config = speechsdk.SpeechConfig(subscription=os.environ.get('SPEECH_KEY'), region=os.environ.get('SPEECH_REGION'))
-    # speech_config.endpoint_id = "https://southafricanorth.api.cognitive.microsoft.com/sts/v1.0/issuetoken"
 
     if request.method == "POST":
         print("FORM DATA RECEIVED")
@@ -101,15 +95,17 @@ def transcript():
                 done = True  
 
             all_results = []
+            # all_results = list()
+            
             def handle_final_result(evt):
-                print ("RECOGNIZED {}".format(evt.result.text))
+                # print ("RECOGNIZED {}".format(evt.result.text))
                 all_results.append(evt.result.text) 
             
             def handle_cancellation(evt):
                 print ("CANCELED {}".format(evt.result.text))
                 print ("CANCELED {}".format(evt))
                 print( evt.error_details)
-                # speech_recognizer.stop_continuous_recognition()
+
 
             speech_recognizer.recognized.connect(handle_final_result) 
             speech_recognizer.session_started.connect(lambda evt: print('SESSION STARTED: {}'.format(evt))) 
@@ -134,7 +130,6 @@ def transcript():
 
             with open(transcript,'w') as f:
                 f.write('\n'.join(all_results))
-
 
             try:
                 # session['user_id'] = user.id  
@@ -224,7 +219,6 @@ def login():
         
         # makes more sense than storing just a bool
         session['user_id'] = user.id  
-        flash('You were logged in!')
         return redirect('/')
 
     # User reached route via GET (as by clicking a link or via redirect)
@@ -240,6 +234,10 @@ def logout():
 
     # Redirect user to login form
     return redirect("/")
+
+@app.errorhandler(413)
+def too_large(e):
+    return "File is too large", 413
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
