@@ -49,7 +49,6 @@ def replace_extension(filename, new_extension):
     name, ext = filename.split(".")
     return name + "." + new_extension
 
-# user_id = session['user_id']
 date = datetime.datetime.now()
 
 """Show homepage, fix later"""
@@ -95,10 +94,8 @@ def transcript():
                 done = True  
 
             all_results = []
-            # all_results = list()
             
             def handle_final_result(evt):
-                # print ("RECOGNIZED {}".format(evt.result.text))
                 all_results.append(evt.result.text) 
             
             def handle_cancellation(evt):
@@ -144,7 +141,7 @@ def transcript():
         else:
             print("Something went wrong w/ file")
         
-    return render_template("transcript.html", all_results=all_results)
+    return render_template("history.html", all_results=all_results)
 
 @app.route("/history", methods=["GET"])
 @login_required
@@ -198,6 +195,7 @@ def login():
 
         password = request.form.get('password')
         username = request.form.get('username')
+
         # Ensure username was submitted
         if not username:
             return apology("must provide username", 403)

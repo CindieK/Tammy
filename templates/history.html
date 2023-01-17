@@ -6,10 +6,19 @@
 
 
 {% block main %}
+
+<form method="post" action="/transcript" accept=".doc,.docx" enctype="multipart/form-data">
+    <div class="mb-3">
+        {% if all_results != "" %}
+
+        <p>{{ all_results|join(" ") }}</p>
+
+        {% endif %}
+    </div>
+<form>
 <table class="table">
     <thead>
         <tr>
-            <!-- <th scope="col">User</th> -->
             <th scope="col">FileName</th>
             <th scope="col">Transcript</th>
             <th scope="col">Date</th>
@@ -18,7 +27,6 @@
     <tbody>
         {% for history in history %}
         <tr>
-            <!-- <td>{{ history["user_id"] }}</td> -->
             <td>{{ history["filename"] }}</td>
             <td><a href="{{ history['transcript'] }}" download>{{ history["transcript"] }}</a></td>
             <td>{{ history["date"] }}</td>
