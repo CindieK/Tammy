@@ -49,7 +49,7 @@ def replace_extension(filename, new_extension):
     name, ext = filename.split(".")
     return name + "." + new_extension
 
-date = datetime.datetime.now()
+date = datetime.datetime.today()
 
 """Show homepage, fix later"""
 @app.route("/", methods=["GET", "POST"])
@@ -57,7 +57,7 @@ date = datetime.datetime.now()
 def index():
     # user_id = session["user_id"]
     return render_template("index.html")
-
+    
 # Show generated transcript
 @app.route("/transcript", methods=["GET", "POST"])
 @login_required
