@@ -62,6 +62,7 @@ def index():
 @app.route("/transcript", methods=["GET", "POST"])
 @login_required
 def transcript():  
+    date = datetime.datetime.today()
     all_results = "No file selected"
     speech_config = speechsdk.SpeechConfig(subscription=os.environ.get('SPEECH_KEY'), region=os.environ.get('SPEECH_REGION'))
 
@@ -99,8 +100,8 @@ def transcript():
                 all_results.append(evt.result.text) 
             
             def handle_cancellation(evt):
-                print ("CANCELED {}".format(evt.result.text))
-                print ("CANCELED {}".format(evt))
+                # print ("CANCELED {}".format(evt.result.text))
+                # print ("CANCELED {}".format(evt))
                 print( evt.error_details)
 
 
@@ -206,7 +207,6 @@ def login():
 
         # symbols_user database for username
         user = db.query(User).filter_by(username=request.form.get('username')).first()
-        # hash = generate_password_hash(password)
 
         if (user == None):
             return apology("Invalid username/password", 403)
