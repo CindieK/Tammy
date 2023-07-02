@@ -65,6 +65,7 @@ def transcript():
     date = datetime.datetime.today()
     all_results = "No file selected"
     speech_config = speechsdk.SpeechConfig(subscription=os.environ.get('SPEECH_KEY'), region=os.environ.get('SPEECH_REGION'))
+    #speech_config.speech_recognition_language="en-US"
 
     if request.method == "POST":
         print("FORM DATA RECEIVED")
@@ -83,7 +84,7 @@ def transcript():
             filename = secure_filename(file.filename)
             full_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(full_file_path)
-            audio_config = speechsdk.AudioConfig(filename = full_file_path) 
+            audio_config = speechsdk.audio.AudioConfig(filename=full_file_path)
             speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config, audio_config=audio_config)
             
             done = False
@@ -103,7 +104,6 @@ def transcript():
                 # print ("CANCELED {}".format(evt.result.text))
                 # print ("CANCELED {}".format(evt))
                 print( evt.error_details)
-
 
             speech_recognizer.recognized.connect(handle_final_result) 
             speech_recognizer.session_started.connect(lambda evt: print('SESSION STARTED: {}'.format(evt))) 
@@ -155,12 +155,12 @@ def history():
 def register():
     """Register user"""
     if (request.method == "POST"):
-        username = request.form.get('username')
+        email = request.form.get('email')
         password = request.form.get('password')
         confirmation = request.form.get('confirmation')
 
-        if not username:
-            return apology("Username is required!")
+        if not email:
+            return apology("Email is required!")
         elif not password:
             return apology("Password is required!")
         elif not confirmation:
@@ -173,13 +173,13 @@ def register():
         hash = generate_password_hash(password)
 
         try:
-            newUser = User(username=username, password=hash)
+            newUser = User(email=email, password=hash)
             db.add(newUser)
             db.commit()
             return redirect('/login')
         except Exception as err:
             print(f"Unexpected {err=}, {type(err)=}")
-            return apology("Username has already been registered!")
+            return apology("Email has already been registered!")
 
     else:
         return render_template("register.html")
@@ -195,23 +195,23 @@ def login():
     if request.method == "POST":
 
         password = request.form.get('password')
-        username = request.form.get('username')
+        email = request.form.get('email')
 
-        # Ensure username was submitted
-        if not username:
-            return apology("must provide username", 403)
+        # Ensure email was submitted
+        if not email:
+            return apology("must provide email", 403)
 
         # Ensure password was submitted
         elif not password:
             return apology("must provide password", 403)
 
-        # symbols_user database for username
-        user = db.query(User).filter_by(username=request.form.get('username')).first()
+        # symbols_user database for email
+        user = db.query(User).filter_by(email=request.form.get('email')).first()
 
         if (user == None):
-            return apology("Invalid username/password", 403)
+            return apology("Invalid email/password", 403)
 
-        # Ensure username exists and password is correct
+        # Ensure email exists and password is correct
         if not check_password_hash(user.password, request.form.get("password")):
             return apology("Invalid password", 403)
         

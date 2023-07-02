@@ -20,8 +20,10 @@ class History(Base):
 class User(Base):
     __tablename__ = 'user'
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    username = sqlalchemy.Column(sqlalchemy.String(length=100))
+    email = sqlalchemy.Column(sqlalchemy.String(length=50))
+    #username = sqlalchemy.Column(sqlalchemy.String(length=100))
     password = sqlalchemy.Column(sqlalchemy.String(length=20))
+
 
 Base.metadata.create_all(engine)
 
